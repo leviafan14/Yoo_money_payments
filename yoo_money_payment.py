@@ -11,11 +11,11 @@ def internet_pay(abonent:int, pay_sum:str, trans_num:str):
     #os.popen(pay_string)
 
 # Внесение платежей за ТВ в биллинг Atirra Для python2.7    
-def tv_pay_python2(abonent):
+def tv_pay_python2(abonent:int, db_username:str, db_password:str):
     print('tv_pay-ok', 'ls: ', abonent, 'sum: ', pay_sum)
     #pay_string = 'http://127.0.0.1/tv-yandex.php?command=pay&account=%d&sum=%s&txn_id=%s' % (abonent, pay_sum, trans_num)
     #urllib2.urlopen(pay_string).read()
-    #con = kinterbasdb.connect(dsn='192.168.0.13:ATIRRA', user='SYSDBA', password='masterkey', charset='win1251')
+    #con = kinterbasdb.connect(dsn='192.168.0.13:ATIRRA', user=db_username, password=db_password, charset='win1251')
     #cur = con.cursor()
     #cur.execute(sql)
     #sql_data = cur.fetchall()
