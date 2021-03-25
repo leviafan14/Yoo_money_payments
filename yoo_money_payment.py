@@ -1,35 +1,47 @@
-import urllib3
-import imaplib
 import email
+import imaplib
 import os
+import urllib3
 from auto_add_ticket import auto_add_tickets
 
 # Обработка платежей за интернет
 def internet_pay(abonent:int, pay_sum:str, trans_num:str):
-    print('internet_pay-ok','ls: ',abonent, 'sum: ',pay_sum)
-    #pay_string = '/netup/utm5/bin/utm5_payment_tool -a %d -b %s -e %s -C /netup/utm5/utm5_payment_tool_yandex.cfg' % (abonent, pay_sum, trans_num)
-    #os.popen(pay_string)
+    try:
+        pay_string = '/netup/utm5/bin/utm5_payment_tool -a %d -b %s -e %s -C /netup/utm5/utm5_payment_tool_yandex.cfg' % (abonent, pay_sum, trans_num)
+        os.popen(pay_string)
+        print('internet_pay-ok','ls: ',abonent, 'sum: ',pay_sum)
+    except Exception as inet_pay_except:
+        print(f"Ошибка проведения платежа за интернет {inet_pay_except}")
 
 # Внесение платежей за ТВ в биллинг Atirra Для python2.7    
 def tv_pay_python2(abonent:int, db_username:str, db_password:str):
+    pay_string = 'http://127.0.0.1/tv-yandex.php?command=pay&account=%d&sum=%s&txn_id=%s' % (abonent, pay_sum, trans_num)
+    urllib2.urlopen(pay_string).read()
+    con = kinterbasdb.connect(dsn='192.168.0.13:ATIRRA', user=db_username, password=db_password, charset='win1251')
+    cur = con.cursor()
+    cur.execute(sql)
+    sql_data = cur.fetchall()
+    cur.close()
+    con.close()
     print('tv_pay-ok', 'ls: ', abonent, 'sum: ', pay_sum)
-    #pay_string = 'http://127.0.0.1/tv-yandex.php?command=pay&account=%d&sum=%s&txn_id=%s' % (abonent, pay_sum, trans_num)
-    #urllib2.urlopen(pay_string).read()
-    #con = kinterbasdb.connect(dsn='192.168.0.13:ATIRRA', user=db_username, password=db_password, charset='win1251')
-    #cur = con.cursor()
-    #cur.execute(sql)
-    #sql_data = cur.fetchall()
-    #cur.close()
-    #con.close()
-
+    
 # Внесение платежей за ТВ в биллинг Atirra Для python3
-def tv_pay_python3(abonent:str,pay_sum:str,trans_num:str):
+def tv_pay_python3(abonent:str, pay_sum:str, trans_num:str, notification_sum:int):
     pay_string = 'http://127.0.0.1/tv-yandex.php?command=pay&account=%s&sum=%s&txn_id=%s' % (abonent, pay_sum, trans_num)
-    response = urllib.request.urlopen(pay_string)
-    content = response.read().decode('UTF-8')
-    n_cont = content.replace('\ufeff',' ').split()
-    return int(n_cont[0])
-
+    try:
+        response = urllib.request.urlopen(pay_string)
+        content = response.read().decode('UTF-8')
+        n_cont = content.replace('\ufeff',' ').split()
+        amount = int(float(pay_sum))
+        # Отправка уведомления если сумма платежа >= сумме вероятной оплате задолжености за ТВ
+            if  amount >= notification_sum:
+                auto_add_tickets('1','31','л/c: ',body_abonent,'Отправлено через yoo money')
+                else:
+            pass
+        return int(n_cont[0])
+    except Exception as tv_pay_except:
+        print(f"Ошибка проведения платежа за телевидение {tv_pay_except}")
+        
 # Чтение входящей почты
 def get_email(username:str, password:str, internet_service_alias:str, tv_service_alias:str):
     server = imaplib.IMAP4_SSL('imap.yandex.ru')
@@ -67,10 +79,6 @@ def get_email(username:str, password:str, internet_service_alias:str, tv_service
                 if pay_type == internet_service_alias:
                     pass
                 elif pay_type == tv_service_alias:
-                    amount = int(float(body_sum))
-                    if  amount >= 420:
-                        auto_add_tickets('1','31','л/c: ',body_abonent,'Отправлено через yoo money')
-                    else:
-                        pass
+                    pass
             else:
                 continue
