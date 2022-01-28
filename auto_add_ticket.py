@@ -33,11 +33,10 @@ def auto_add_tickets(type_ticket:str,class_ticket:str,ls_prefix:str,ls:str,descr
         # Если запрос не удался
         if str(response_enter) != '<Response [200]>':
             print('Не удалось авторизироваться на сайте')
-            exit()
         else:
             pass
     except Exception as e:
-        print('Ошибка при выполнении запроса авторизации')
+        print(f'Ошибка при выполнении запроса авторизации. {e}')
         exit()
         
     # Добавление заявки
@@ -50,19 +49,16 @@ def auto_add_tickets(type_ticket:str,class_ticket:str,ls_prefix:str,ls:str,descr
         soup = BeautifulSoup(result,'html.parser')
         item = soup.find('td', text=ls)
         if len(item) == 0:
-            print('Не удалось добавить заявку')
-            exit()
+            print('Не удалось добавить заявку. Ошибка поиска данных')
         else:
             pass
         
        # Если запрос не удался 
         if str(response_add_ticket) != '<Response [200]>':
-            print('Не удалось добавить заявку')
-            exit()
+            print(f'Не удалось добавить заявку. Ошибка запроса.')
         else:
             pass
     except Exception as e:
-        print('Не удалось добавить заявку')
-        exit()
+        print(f'Не удалось добавить заявку {e}')
         
 #auto_add_tickets('1','31','л/с: ','1060','Добавлено скриптом Сберабанк.Реестры')
